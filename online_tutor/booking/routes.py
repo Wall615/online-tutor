@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from datetime import datetime
 from flask import current_app
-from models import db, cst_now, Booking, Course, Payment, User, ParentStudent
+from models import db, cst_now, CST, Booking, Course, Payment, User, ParentStudent
 
 booking_bp = Blueprint('booking', __name__, template_folder='../templates/booking')
 
@@ -51,7 +51,7 @@ def create(course_id):
             student_id = current_user.id
 
         try:
-            scheduled_time = datetime.strptime(scheduled_time_str, '%Y-%m-%dT%H:%M')
+            scheduled_time = datetime.strptime(scheduled_time_str, '%Y-%m-%dT%H:%M').replace(tzinfo=CST)
         except ValueError:
             flash('时间格式不正确。', 'danger')
             return render_template('booking_create.html', course=course, bound_students=bound_students)
