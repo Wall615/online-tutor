@@ -25,17 +25,15 @@ def create_inline(course_id):
         flash('只有完成课程后才能评价。', 'danger')
         return redirect(url_for('course.detail', course_id=course_id))
 
-    existing = Review.query.filter_by(booking_id=booking.id).first()
-    if existing:
-        flash('您已评价过此课程。', 'warning')
-        return redirect(url_for('course.detail', course_id=course_id))
-
     rating = request.form.get('rating', 5, type=int)
     comment = request.form.get('comment', '').strip()
 
     if rating < 1 or rating > 5:
         flash('评分必须在 1-5 之间。', 'danger')
         return redirect(url_for('course.detail', course_id=course_id))
+
+    # Check if this is a follow-up review
+    existing_count = Review.query.filter_by(booking_id=booking.id).count()
 
     review = Review(
         booking_id=booking.id,
@@ -55,7 +53,10 @@ def create_inline(course_id):
         db.session.add(teacher_profile)
 
     db.session.commit()
-    flash('评价提交成功！', 'success')
+    if existing_count > 0:
+        flash('追评提交成功！', 'success')
+    else:
+        flash('评价提交成功！', 'success')
     return redirect(url_for('course.detail', course_id=course_id))
 
 
@@ -72,10 +73,7 @@ def create(booking_id):
         flash('只能评价已完成的课程。', 'danger')
         return redirect(url_for('booking.my_bookings'))
 
-    existing = Review.query.filter_by(booking_id=booking_id).first()
-    if existing:
-        flash('您已评价过此课程。', 'warning')
-        return redirect(url_for('review.teacher_reviews', teacher_id=booking.teacher_id))
+    existing_count = Review.query.filter_by(booking_id=booking_id).count()
 
     if request.method == 'POST':
         rating = request.form.get('rating', 5, type=int)
@@ -103,7 +101,7 @@ def create(booking_id):
             db.session.add(teacher_profile)
 
         db.session.commit()
-        flash('评价提交成功！', 'success')
+        flash('追评提交成功！' if existing_count > 0 else '评价提交成功！', 'success')
         return redirect(url_for('review.teacher_reviews', teacher_id=booking.teacher_id))
 
     return render_template('review_create.html', booking=booking)

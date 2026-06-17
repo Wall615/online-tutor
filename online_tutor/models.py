@@ -108,7 +108,7 @@ class Booking(db.Model):
 
     # Relationships
     messages = db.relationship('Message', backref='booking', lazy='dynamic')
-    review = db.relationship('Review', backref='booking', uselist=False, cascade='all, delete-orphan')
+    reviews = db.relationship('Review', backref='booking', lazy='dynamic', cascade='all, delete-orphan')
     payment = db.relationship('Payment', backref='booking', uselist=False, cascade='all, delete-orphan')
 
     def __repr__(self):
@@ -134,7 +134,7 @@ class Review(db.Model):
     __tablename__ = 'reviews'
 
     id = db.Column(db.Integer, primary_key=True)
-    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), unique=True, nullable=False)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     teacher_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer, nullable=False)  # 1-5
@@ -165,7 +165,7 @@ class Payment(db.Model):
     __tablename__ = 'payments'
 
     id = db.Column(db.Integer, primary_key=True)
-    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), unique=True, nullable=False)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending/paid/refunded

@@ -79,8 +79,9 @@ def detail(course_id):
     teacher = db.session.get(User, course.teacher_id)
     reviews = Review.query.filter_by(teacher_id=teacher.id).order_by(Review.created_at.desc()).limit(10).all()
 
-    # Check if current user can review this course (completed booking, not yet reviewed)
+    # Check if current user can review this course (has completed booking)
     can_review = False
+    review_count = 0
     if current_user.is_authenticated and current_user.is_student():
         completed_booking = Booking.query.filter_by(
             student_id=current_user.id,
@@ -88,11 +89,10 @@ def detail(course_id):
             status='completed'
         ).first()
         if completed_booking:
-            existing = Review.query.filter_by(booking_id=completed_booking.id).first()
-            if not existing:
-                can_review = True
+            can_review = True
+            review_count = Review.query.filter_by(booking_id=completed_booking.id).count()
 
-    return render_template('detail.html', course=course, teacher=teacher, reviews=reviews, can_review=can_review)
+    return render_template('detail.html', course=course, teacher=teacher, reviews=reviews, can_review=can_review, review_count=review_count)
 
 
 @course_bp.route('/create', methods=['GET', 'POST'])

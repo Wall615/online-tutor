@@ -35,7 +35,9 @@
                     <form method="POST" action="{{ url_for('review.create', booking_id=0) }}" style="display: none;" id="review-form-helper">
                         <input type="hidden" name="course_id_trigger" value="1">
                     </form>
-                    <p style="font-weight: 700; margin-bottom: 0.75rem;">📝 你已完成该课程，来评价一下吧</p>
+                    <p style="font-weight: 700; margin-bottom: 0.75rem;">
+                        {{ '📝 追评' if review_count > 0 else '⭐ 来评价一下吧' }}
+                    </p>
                     <form method="POST" action="{{ url_for('review.create_inline', course_id=course.id) }}">
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                         <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">

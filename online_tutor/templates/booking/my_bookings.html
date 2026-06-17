@@ -48,8 +48,10 @@
                             {% if booking.status == 'confirmed' %}
                                 <a href="{{ url_for('chat.chat_room', booking_id=booking.id) }}" class="btn btn-outline-primary btn-sm">聊天</a>
                             {% endif %}
-                            {% if booking.status == 'completed' and booking.id not in reviewed_ids %}
-                                <a href="{{ url_for('review.create', booking_id=booking.id) }}" class="btn btn-outline-warning btn-sm">评价</a>
+                            {% if booking.status == 'completed' %}
+                                <a href="{{ url_for('review.create', booking_id=booking.id) }}" class="btn btn-outline-warning btn-sm">
+                                    {{ '追评' if booking.id in reviewed_ids else '评价' }}
+                                </a>
                             {% endif %}
                             {% if booking.status in ('pending', 'confirmed') %}
                                 <a href="{{ url_for('booking.cancel', booking_id=booking.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('确定取消？')">取消</a>
