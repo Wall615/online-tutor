@@ -107,10 +107,23 @@ def my_bookings():
         if student_ids:
             students = User.query.filter(User.id.in_(student_ids)).all()
             students_map = {u.id: u for u in students}
-        return render_template('my_bookings.html', bookings=bookings, students_map=students_map, is_parent=True)
+        # Build reviewed booking IDs set
+        from models import Review
+        booking_ids = [b.id for b in bookings]
+        reviewed_ids = set()
+        if booking_ids:
+            reviewed = Review.query.filter(Review.booking_id.in_(booking_ids)).all()
+            reviewed_ids = {r.booking_id for r in reviewed}
+        return render_template('my_bookings.html', bookings=bookings, students_map=students_map, is_parent=True, reviewed_ids=reviewed_ids)
     else:
         bookings = Booking.query.filter_by(student_id=current_user.id).order_by(Booking.created_at.desc()).all()
-        return render_template('my_bookings.html', bookings=bookings)
+        from models import Review
+        booking_ids = [b.id for b in bookings]
+        reviewed_ids = set()
+        if booking_ids:
+            reviewed = Review.query.filter(Review.booking_id.in_(booking_ids)).all()
+            reviewed_ids = {r.booking_id for r in reviewed}
+        return render_template('my_bookings.html', bookings=bookings, reviewed_ids=reviewed_ids)
 
 
 @booking_bp.route('/teacher')

@@ -48,7 +48,7 @@
                             {% if booking.status == 'confirmed' %}
                                 <a href="{{ url_for('chat.chat_room', booking_id=booking.id) }}" class="btn btn-outline-primary btn-sm">聊天</a>
                             {% endif %}
-                            {% if booking.status == 'completed' and not booking.review %}
+                            {% if booking.status == 'completed' and booking.id not in reviewed_ids %}
                                 <a href="{{ url_for('review.create', booking_id=booking.id) }}" class="btn btn-outline-warning btn-sm">评价</a>
                             {% endif %}
                             {% if booking.status in ('pending', 'confirmed') %}
