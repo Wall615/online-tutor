@@ -18,7 +18,17 @@ def chat_list():
     else:
         bookings = []
 
-    return render_template('chat_list.html', bookings=bookings)
+    # Calculate unread count per booking
+    unread_map = {}
+    if bookings:
+        for b in bookings:
+            count = Message.query.filter_by(
+                booking_id=b.id, receiver_id=current_user.id, is_read=False
+            ).count()
+            if count > 0:
+                unread_map[b.id] = count
+
+    return render_template('chat_list.html', bookings=bookings, unread_map=unread_map)
 
 
 @chat_bp.route('/<int:booking_id>')

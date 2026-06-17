@@ -1,8 +1,21 @@
+import random
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from models import db, User, TeacherProfile
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates/auth')
+
+
+def _captcha():
+    """Generate captcha numbers for registration form."""
+    a, b = random.randint(1, 9), random.randint(1, 9)
+    return a, b, a + b
+
+
+def _render_register():
+    """Render register page with captcha."""
+    a, b, _ = _captcha()
+    return render_template('register.html', captcha_a=a, captcha_b=b)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -19,31 +32,45 @@ def register():
         # Validation
         if not username or not email or not password:
             flash('所有字段都必须填写。', 'danger')
-            return render_template('register.html')
+            return _render_register()
+
+        # Username validation: 2-10 chars, Chinese/English/dots only
+        import re
+        if len(username) < 2 or len(username) > 10:
+            flash('用户名长度需在2到10个字符之间。', 'danger')
+            return _render_register()
+        if not re.match(r'^[一-鿿\a-zA-Z.]+$', username):
+            flash('用户名只能包含汉字、英文字母和点号(.)。', 'danger')
+            return _render_register()
 
         if len(password) < 6:
             flash('密码长度至少为6位。', 'danger')
-            return render_template('register.html')
+            return _render_register()
 
-        if len(username) > 80:
-            flash('用户名不能超过80个字符。', 'danger')
-            return render_template('register.html')
+        # Arithmetic CAPTCHA
+        captcha_answer = request.form.get('captcha_answer', '').strip()
+        captcha_a = request.form.get('captcha_a', '')
+        captcha_b = request.form.get('captcha_b', '')
+        expected = int(captcha_a) + int(captcha_b) if captcha_a and captcha_b else None
+        if expected is None or captcha_answer != str(expected):
+            flash('验证码计算错误，请重试。', 'danger')
+            return _render_register()
 
         if len(email) > 120:
             flash('邮箱不能超过120个字符。', 'danger')
-            return render_template('register.html')
+            return _render_register()
 
         if User.query.filter_by(username=username).first():
             flash('用户名已被注册。', 'danger')
-            return render_template('register.html')
+            return _render_register()
 
         if User.query.filter_by(email=email).first():
             flash('邮箱已被注册。', 'danger')
-            return render_template('register.html')
+            return _render_register()
 
         if role not in ('student', 'teacher', 'parent'):
             flash('无效的角色选择。', 'danger')
-            return render_template('register.html')
+            return _render_register()
 
         user = User(username=username, email=email, role=role)
         user.set_password(password)
@@ -60,7 +87,7 @@ def register():
         flash(f'注册成功！欢迎加入师说，{user.username}。', 'success')
         return redirect(url_for('course.index'))
 
-    return render_template('register.html')
+    return _render_register()
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])

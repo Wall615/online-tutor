@@ -14,7 +14,9 @@
                     <div class="mb-3">
                         <label for="username" class="form-label">用户名</label>
                         <input type="text" class="form-control" id="username" name="username"
-                               required autofocus placeholder="给自己起个名字">
+                               required autofocus placeholder="2~10位，支持汉字/英文/点号" maxlength="10"
+                               pattern="[一-鿿a-zA-Z.]+" title="只能使用汉字、英文字母和点号">
+                        <small style="color: var(--ink-light); font-size: 0.72rem;">2~10个字符，支持汉字、英文名（如 John.Smith）</small>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">邮箱</label>
@@ -48,6 +50,12 @@
                                 <input type="radio" name="role" value="parent"> 👨‍👩‍👧 家长
                             </label>
                         </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">验证码：{{ captcha_a }} + {{ captcha_b }} = ？</label>
+                        <input type="hidden" name="captcha_a" value="{{ captcha_a }}">
+                        <input type="hidden" name="captcha_b" value="{{ captcha_b }}">
+                        <input type="number" class="form-control" name="captcha_answer" required placeholder="请输入计算结果" style="max-width: 200px;">
                     </div>
                     <button type="submit" class="btn btn-primary w-100 btn-lg">注册</button>
                 </form>

@@ -114,6 +114,10 @@ def create():
             flash('课程标题和科目为必填项。', 'danger')
             return render_template('create.html')
 
+        if price < 0 or price > 99999.99:
+            flash('价格需在 0 ~ 99999.99 之间。', 'danger')
+            return render_template('create.html')
+
         if len(title) > 200:
             flash('课程标题不能超过200个字符。', 'danger')
             return render_template('create.html')

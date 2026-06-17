@@ -25,6 +25,12 @@
                             </div>
                         </div>
                         <div style="text-align: right; flex-shrink: 0;">
+                            {% if booking.id in unread_map %}
+                            <span class="badge" style="background: var(--danger); color: #fff; font-size: 0.7rem; margin-bottom: 2px;">
+                                {{ unread_map[booking.id] }} 条新消息
+                            </span>
+                            <br>
+                            {% endif %}
                             <span class="badge status-{{ booking.status }}" style="font-size: 0.7rem;">
                                 {{ {'confirmed': '已确认', 'completed': '已完成'}.get(booking.status, booking.status) }}
                             </span>
