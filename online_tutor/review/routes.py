@@ -5,6 +5,60 @@ from models import db, Review, Booking, TeacherProfile, User
 review_bp = Blueprint('review', __name__, template_folder='../templates/review')
 
 
+@review_bp.route('/create_inline/<int:course_id>', methods=['POST'])
+@login_required
+def create_inline(course_id):
+    """Create a review directly from the course detail page"""
+    course = db.session.get(Course, course_id)
+    if not course:
+        flash('课程不存在。', 'danger')
+        return redirect(url_for('course.index'))
+
+    # Find the student's completed booking for this course
+    booking = Booking.query.filter_by(
+        student_id=current_user.id,
+        course_id=course_id,
+        status='completed'
+    ).first()
+
+    if not booking:
+        flash('只有完成课程后才能评价。', 'danger')
+        return redirect(url_for('course.detail', course_id=course_id))
+
+    existing = Review.query.filter_by(booking_id=booking.id).first()
+    if existing:
+        flash('您已评价过此课程。', 'warning')
+        return redirect(url_for('course.detail', course_id=course_id))
+
+    rating = request.form.get('rating', 5, type=int)
+    comment = request.form.get('comment', '').strip()
+
+    if rating < 1 or rating > 5:
+        flash('评分必须在 1-5 之间。', 'danger')
+        return redirect(url_for('course.detail', course_id=course_id))
+
+    review = Review(
+        booking_id=booking.id,
+        student_id=current_user.id,
+        teacher_id=course.teacher_id,
+        rating=rating,
+        comment=comment
+    )
+    db.session.add(review)
+
+    # Update teacher's average rating
+    teacher_profile = TeacherProfile.query.filter_by(user_id=course.teacher_id).first()
+    if teacher_profile:
+        all_ratings = Review.query.filter_by(teacher_id=course.teacher_id).all()
+        avg = sum(r.rating for r in all_ratings) / len(all_ratings)
+        teacher_profile.rating_avg = round(avg, 1)
+        db.session.add(teacher_profile)
+
+    db.session.commit()
+    flash('评价提交成功！', 'success')
+    return redirect(url_for('course.detail', course_id=course_id))
+
+
 @review_bp.route('/create/<int:booking_id>', methods=['GET', 'POST'])
 @login_required
 def create(booking_id):
