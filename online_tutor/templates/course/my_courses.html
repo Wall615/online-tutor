@@ -20,6 +20,9 @@
                     <span class="badge {% if course.status == 'active' %}bg-success{% else %}bg-secondary{% endif %}" style="flex-shrink: 0; margin-left: 0.5rem;">
                         {{ '上架' if course.status == 'active' else '下架' }}
                     </span>
+                    {% if not course.approved %}
+                    <span class="badge bg-warning" style="flex-shrink: 0; margin-left: 4px;">⏳ 待审核</span>
+                    {% endif %}
                 </div>
                 <span class="subject-badge" style="margin-bottom: 0.5rem;">{{ course.subject }}</span>
                 <p style="font-size: 0.82rem; color: var(--ink-muted); line-height: 1.6; margin-bottom: 0.75rem;">

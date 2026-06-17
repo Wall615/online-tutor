@@ -98,6 +98,22 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
+@auth_bp.route('/delete-account')
+@login_required
+def delete_account():
+    """User deletes their own account"""
+    user_id = current_user.id
+    username = current_user.username
+    logout_user()
+    user = db.session.get(User, user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        current_app.logger.info(f'User self-deleted: {username} (id={user_id})')
+    flash('你的账号已成功注销。', 'info')
+    return redirect(url_for('auth.login'))
+
+
 @auth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():

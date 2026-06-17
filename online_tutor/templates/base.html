@@ -44,6 +44,7 @@
                         {% elif current_user.is_admin() %}
                             <li class="nav-item"><a class="nav-link {{ 'active' if ep == 'admin.dashboard' }}" href="{{ url_for('admin.dashboard') }}">仪表盘</a></li>
                             <li class="nav-item"><a class="nav-link {{ 'active' if ep.startswith('admin.verify') }}" href="{{ url_for('admin.verify_teachers') }}">审核教师</a></li>
+                            <li class="nav-item"><a class="nav-link {{ 'active' if ep == 'admin.approve_courses' }}" href="{{ url_for('admin.approve_courses') }}">审核课程</a></li>
                             <li class="nav-item"><a class="nav-link {{ 'active' if ep == 'admin.user_list' }}" href="{{ url_for('admin.user_list') }}">用户管理</a></li>
                         {% endif %}
                     {% endif %}

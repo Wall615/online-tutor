@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from functools import wraps
 from datetime import datetime
@@ -99,3 +99,49 @@ def user_list():
     """List all users"""
     users = User.query.order_by(User.created_at.desc()).all()
     return render_template('user_list.html', users=users)
+
+
+@admin_bp.route('/delete-user/<int:user_id>')
+@admin_required
+def delete_user(user_id):
+    """Admin deletes a user"""
+    if user_id == current_user.id:
+        flash('不能删除自己的账号。', 'danger')
+        return redirect(url_for('admin.user_list'))
+
+    user = db.session.get(User, user_id)
+    if not user:
+        flash('用户不存在。', 'danger')
+        return redirect(url_for('admin.user_list'))
+
+    username = user.username
+    db.session.delete(user)
+    db.session.commit()
+    current_app.logger.info(f'Admin deleted user: {username} (id={user_id})')
+    flash(f'已删除用户 {username}。', 'success')
+    return redirect(url_for('admin.user_list'))
+
+
+@admin_bp.route('/approve-courses')
+@admin_required
+def approve_courses():
+    """List courses pending approval"""
+    pending = Course.query.filter_by(approved=False).order_by(Course.created_at.desc()).all()
+    approved = Course.query.filter_by(approved=True).order_by(Course.created_at.desc()).limit(10).all()
+    return render_template('approve_courses.html', pending=pending, approved=approved)
+
+
+@admin_bp.route('/approve-course/<int:course_id>')
+@admin_required
+def approve_course(course_id):
+    """Approve a course"""
+    course = db.session.get(Course, course_id)
+    if not course:
+        flash('课程不存在。', 'danger')
+        return redirect(url_for('admin.approve_courses'))
+
+    course.approved = True
+    db.session.commit()
+    current_app.logger.info(f'Admin approved course: {course.title} (id={course_id})')
+    flash(f'已通过课程《{course.title}》的审核。', 'success')
+    return redirect(url_for('admin.approve_courses'))

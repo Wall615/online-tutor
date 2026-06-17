@@ -85,6 +85,7 @@ class Course(db.Model):
     price = db.Column(db.Float, nullable=False, default=0.0)
     duration = db.Column(db.Integer, nullable=False, default=60)  # minutes
     status = db.Column(db.String(20), default='active')  # active / inactive
+    approved = db.Column(db.Boolean, default=False)  # admin approval required
     cover_image = db.Column(db.String(256), default='')
     created_at = db.Column(db.DateTime, default=cst_now)
 

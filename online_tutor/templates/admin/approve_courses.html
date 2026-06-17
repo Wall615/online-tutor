@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}审核课程 — 师说{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 1.25rem;">📚 课程审核</h2>
+
+{% if pending %}
+<div class="card mb-4" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-lg); overflow: hidden;">
+    <div class="card-header" style="background: var(--warning-soft); color: #7a5e20; font-weight: 700;">
+        ⏳ 待审核 ({{ pending|length }})
+    </div>
+    <div class="table-responsive">
+        <table class="table" style="margin: 0;">
+            <thead>
+                <tr>
+                    <th>课程</th>
+                    <th>教师</th>
+                    <th>科目</th>
+                    <th>价格</th>
+                    <th>发布时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in pending %}
+                <tr>
+                    <td><strong>{{ course.title }}</strong></td>
+                    <td>{{ course.teacher.username }}</td>
+                    <td><span class="subject-badge">{{ course.subject }}</span></td>
+                    <td>¥{{ "%.2f"|format(course.price) }}</td>
+                    <td style="font-size: 0.82rem; color: var(--ink-muted);">{{ course.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.approve_course', course_id=course.id) }}" class="btn btn-success btn-sm">✓ 通过</a>
+                        <a href="{{ url_for('course.detail', course_id=course.id) }}" class="btn btn-outline-primary btn-sm">查看</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state" style="padding: 2rem;">
+    <span class="empty-icon">✅</span>
+    <h4>没有待审核的课程</h4>
+</div>
+{% endif %}
+
+{% if approved %}
+<div class="card" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-lg); overflow: hidden;">
+    <div class="card-header">✅ 已通过（最近 10 条）</div>
+    <div class="table-responsive">
+        <table class="table" style="margin: 0;">
+            <thead>
+                <tr><th>课程</th><th>教师</th><th>科目</th></tr>
+            </thead>
+            <tbody>
+                {% for course in approved %}
+                <tr>
+                    <td>{{ course.title }}</td>
+                    <td>{{ course.teacher.username }}</td>
+                    <td><span class="subject-badge">{{ course.subject }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

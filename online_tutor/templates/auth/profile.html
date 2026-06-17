@@ -31,6 +31,14 @@
                     <button type="submit" class="btn btn-primary">保存修改</button>
                 </form>
 
+                <hr style="border-color: var(--border-light); margin: 1.5rem 0;">
+                <div style="text-align: right;">
+                    <a href="{{ url_for('auth.delete_account') }}" class="btn btn-outline-danger btn-sm"
+                       onclick="return confirm('确定要注销账号吗？所有数据将被永久删除，此操作不可撤销。')">
+                        ⚠ 注销账号
+                    </a>
+                </div>
+
                 {% if current_user.is_teacher() and current_user.teacher_profile %}
                 <hr style="border-color: var(--border-light); margin: 1.5rem 0;">
                 <h5 style="font-weight: 700; margin-bottom: 0.75rem;">📋 教师资料</h5>

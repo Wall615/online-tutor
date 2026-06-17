@@ -63,7 +63,8 @@ with app.app_context():
         description='针对高中各年级的数学辅导，包括函数、几何、概率统计等。因材施教，查漏补缺。',
         price=150.00,
         duration=60,
-        status='active'
+        status='active',
+        approved=True
     )
     course2 = Course(
         teacher_id=teacher1.id,
@@ -72,7 +73,8 @@ with app.app_context():
         description='从零开始学Python，适合零基础学员。涵盖基础语法、数据结构、项目实战。',
         price=200.00,
         duration=90,
-        status='active'
+        status='active',
+        approved=True
     )
     course3 = Course(
         teacher_id=teacher2.id,
@@ -81,7 +83,8 @@ with app.app_context():
         description='全英文授课环境，提升口语流利度和听力水平。模拟日常对话和面试场景。',
         price=120.00,
         duration=60,
-        status='active'
+        status='active',
+        approved=True
     )
     course4 = Course(
         teacher_id=teacher2.id,
@@ -90,7 +93,8 @@ with app.app_context():
         description='系统讲解英语写作技巧，包括议论文、说明文、应用文等文体。',
         price=100.00,
         duration=60,
-        status='active'
+        status='active',
+        approved=True
     )
     db.session.add_all([course1, course2, course3, course4])
     db.session.flush()

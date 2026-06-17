@@ -32,7 +32,7 @@ def index():
     keyword = request.args.get('keyword', '').strip()
     sort = request.args.get('sort', 'newest')  # newest / price_low / price_high / rating
 
-    query = Course.query.filter_by(status='active')
+    query = Course.query.filter_by(status='active', approved=True)
 
     if subject:
         query = query.filter_by(subject=subject)
@@ -142,7 +142,7 @@ def create():
         )
         db.session.add(course)
         db.session.commit()
-        flash('课程发布成功！', 'success')
+        flash('课程已提交，等待管理员审核后公开展示。', 'success')
         return redirect(url_for('course.my_courses'))
 
     return render_template('create.html')
