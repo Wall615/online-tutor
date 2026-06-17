@@ -125,14 +125,24 @@ with app.app_context():
         status='pending'
     )
 
-    db.session.add_all([booking1, booking2, booking3])
+    # Booking 4: completed, NOT reviewed (student1 booked course4)
+    booking4 = Booking(
+        student_id=student1.id,
+        teacher_id=teacher2.id,
+        course_id=course4.id,
+        scheduled_time=now - timedelta(days=7),
+        status='completed'
+    )
+
+    db.session.add_all([booking1, booking2, booking3, booking4])
     db.session.flush()
 
     # ===== Payments =====
     payment1 = Payment(booking_id=booking1.id, student_id=student1.id, amount=150.00, status='paid', paid_at=now)
     payment2 = Payment(booking_id=booking2.id, student_id=student1.id, amount=120.00, status='paid', paid_at=now - timedelta(days=4))
     payment3 = Payment(booking_id=booking3.id, student_id=student2.id, amount=200.00, status='pending')
-    db.session.add_all([payment1, payment2, payment3])
+    payment4 = Payment(booking_id=booking4.id, student_id=student1.id, amount=100.00, status='paid', paid_at=now - timedelta(days=7))
+    db.session.add_all([payment1, payment2, payment3, payment4])
     db.session.flush()
 
     # ===== Reviews =====

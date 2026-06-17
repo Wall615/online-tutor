@@ -56,8 +56,9 @@ def register():
             db.session.add(profile)
 
         db.session.commit()
-        flash('注册成功！请登录。', 'success')
-        return redirect(url_for('auth.login'))
+        login_user(user)
+        flash(f'注册成功！欢迎加入师说，{user.username}。', 'success')
+        return redirect(url_for('course.index'))
 
     return render_template('register.html')
 
