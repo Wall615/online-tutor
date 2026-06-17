@@ -29,24 +29,26 @@ def create(course_id):
             flash('请先绑定学生账号后再预约课程。', 'warning')
             return redirect(url_for('parent.bind_student'))
 
+    min_time = cst_now().strftime('%Y-%m-%dT%H:%M')
+
     if request.method == 'POST':
         scheduled_time_str = request.form.get('scheduled_time', '').strip()
         if not scheduled_time_str:
             flash('请选择上课时间。', 'danger')
-            return render_template('booking_create.html', course=course, bound_students=bound_students)
+            return render_template('booking_create.html', course=course, bound_students=bound_students, min_time=min_time)
 
         # Determine the actual student for this booking
         if current_user.is_parent():
             student_id_str = request.form.get('student_id', '').strip()
             if not student_id_str:
                 flash('请选择上课的学生。', 'danger')
-                return render_template('booking_create.html', course=course, bound_students=bound_students)
+                return render_template('booking_create.html', course=course, bound_students=bound_students, min_time=min_time)
             student_id = int(student_id_str)
             # Validate this student is bound to this parent
             binding = ParentStudent.query.filter_by(parent_id=current_user.id, student_id=student_id).first()
             if not binding:
                 flash('无效的学生选择。', 'danger')
-                return render_template('booking_create.html', course=course, bound_students=bound_students)
+                return render_template('booking_create.html', course=course, bound_students=bound_students, min_time=min_time)
         else:
             student_id = current_user.id
 
@@ -54,11 +56,11 @@ def create(course_id):
             scheduled_time = datetime.strptime(scheduled_time_str, '%Y-%m-%dT%H:%M').replace(tzinfo=CST)
         except ValueError:
             flash('时间格式不正确。', 'danger')
-            return render_template('booking_create.html', course=course, bound_students=bound_students)
+            return render_template('booking_create.html', course=course, bound_students=bound_students, min_time=min_time)
 
         if scheduled_time <= cst_now():
             flash('上课时间必须在当前时间之后。', 'danger')
-            return render_template('booking_create.html', course=course, bound_students=bound_students)
+            return render_template('booking_create.html', course=course, bound_students=bound_students, min_time=min_time)
 
         booking = Booking(
             student_id=student_id,
@@ -84,7 +86,7 @@ def create(course_id):
         flash('预约已提交，请完成支付。', 'success')
         return redirect(url_for('payment.pay', booking_id=booking.id))
 
-    return render_template('booking_create.html', course=course, bound_students=bound_students)
+    return render_template('booking_create.html', course=course, bound_students=bound_students, min_time=min_time)
 
 
 @booking_bp.route('/my-bookings')

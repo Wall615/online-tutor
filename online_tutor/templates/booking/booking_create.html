@@ -37,7 +37,8 @@
                     {% endif %}
                     <div class="mb-4">
                         <label for="scheduled_time" class="form-label">选择上课时间</label>
-                        <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" required>
+                        <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time"
+                               required min="{{ min_time }}">
                     </div>
                     <button type="submit" class="btn btn-primary w-100 btn-lg">提交预约</button>
                 </form>
