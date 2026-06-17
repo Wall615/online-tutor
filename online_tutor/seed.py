@@ -191,13 +191,18 @@ with app.app_context():
 
     # ===== Messages (for booking1 chat) =====
     msg1 = Message(sender_id=student1.id, receiver_id=teacher1.id, booking_id=booking1.id,
-                   content='王老师您好，我数学基础比较薄弱，希望能重点讲解函数部分。', sent_at=now - timedelta(hours=2))
+                   content='王老师您好，我数学基础比较薄弱，希望能重点讲解函数部分。',
+                   sent_at=now - timedelta(hours=2), is_read=True)
     msg2 = Message(sender_id=teacher1.id, receiver_id=student1.id, booking_id=booking1.id,
                    content='没问题！我会根据你的情况调整教学内容。请提前准备好最近考试的试卷，我可以帮你分析薄弱点。',
-                   sent_at=now - timedelta(hours=1))
+                   sent_at=now - timedelta(hours=1), is_read=False)
     msg3 = Message(sender_id=student1.id, receiver_id=teacher1.id, booking_id=booking1.id,
-                   content='好的，谢谢老师！', sent_at=now - timedelta(minutes=30))
-    db.session.add_all([msg1, msg2, msg3])
+                   content='好的，谢谢老师！', sent_at=now - timedelta(minutes=30), is_read=True)
+    # Teacher_li sends a message to student_xiao (unread)
+    msg4 = Message(sender_id=teacher2.id, receiver_id=student1.id, booking_id=booking4.id,
+                   content='小肖同学，写作课的资料我已经发给你了，记得预习。',
+                   sent_at=now - timedelta(minutes=10), is_read=False)
+    db.session.add_all([msg1, msg2, msg3, msg4])
 
     # ===== Parent-Student Binding =====
     binding1 = ParentStudent(parent_id=parent1.id, student_id=student2.id)
