@@ -1,0 +1,105 @@
+<h2>整体架构 & 5人模块分工</h2>
+<p class="subtitle">Flask Blueprint 单体应用，按功能域拆分为 5 个独立模块</p>
+
+<div class="section">
+  <h3>系统架构图</h3>
+  <div class="mockup">
+    <div class="mockup-header">Flask 应用架构 — Blueprint 模块化</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; line-height: 2; padding: 20px;">
+      <div style="text-align:center; padding:8px; background:#4a90d9; color:#fff; border-radius:4px; margin-bottom:12px;">
+        🖥  app.py — 应用入口 &amp; 配置 &amp; 蓝图注册
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div style="padding:10px; background:#e8f5e9; border-radius:4px; border-left:4px solid #4caf50;">
+          <strong>👤 auth/</strong> 认证模块<br>
+          <small>注册 · 登录 · 角色路由 · 个人资料</small>
+        </div>
+        <div style="padding:10px; background:#e3f2fd; border-radius:4px; border-left:4px solid #2196f3;">
+          <strong>📚 course/</strong> 课程模块<br>
+          <small>发布课程 · 搜索浏览 · 课程详情</small>
+        </div>
+        <div style="padding:10px; background:#fff3e0; border-radius:4px; border-left:4px solid #ff9800;">
+          <strong>📅 booking/</strong> 预约模块<br>
+          <small>预约 · 确认 · 取消 · 状态跟踪</small>
+        </div>
+        <div style="padding:10px; background:#fce4ec; border-radius:4px; border-left:4px solid #e91e63;">
+          <strong>💬 chat/</strong> 聊天模块<br>
+          <small>师生实时消息 · 消息记录</small>
+        </div>
+        <div style="padding:10px; background:#f3e5f5; border-radius:4px; border-left:4px solid #9c27b0;">
+          <strong>⭐ review/</strong> 评价模块<br>
+          <small>评分 · 评论 · 教师评分展示</small>
+        </div>
+        <div style="padding:10px; background:#e0f7fa; border-radius:4px; border-left:4px solid #00bcd4;">
+          <strong>👨‍👩‍👧 parent/</strong> 家长模块<br>
+          <small>绑定学生 · 学习记录 · 消费查看</small>
+        </div>
+        <div style="padding:10px; background:#fff9c4; border-radius:4px; border-left:4px solid #fdd835;">
+          <strong>💰 payment/</strong> 支付模块<br>
+          <small>模拟支付 · 余额管理 · 交易记录</small>
+        </div>
+        <div style="padding:10px; background:#efebe9; border-radius:4px; border-left:4px solid #795548;">
+          <strong>🛡 admin/</strong> 管理模块<br>
+          <small>教师审核 · 数据仪表盘 · 用户管理</small>
+        </div>
+      </div>
+      <div style="text-align:center; padding:8px; background:#666; color:#fff; border-radius:4px; margin-top:12px;">
+        🗄 models.py — SQLAlchemy 数据模型（所有模块共享）
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🎯 5人分工建议</h3>
+  <table style="width:100%; border-collapse:collapse; margin-top:12px;">
+    <thead>
+      <tr style="background:#f5f5f5;">
+        <th style="padding:10px; text-align:left; border-bottom:2px solid #ddd;">成员</th>
+        <th style="padding:10px; text-align:left; border-bottom:2px solid #ddd;">负责模块</th>
+        <th style="padding:10px; text-align:left; border-bottom:2px solid #ddd;">核心任务</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:10px; border-bottom:1px solid #eee;"><strong>👨‍💻 成员1</strong></td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">auth + models</td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">用户系统 + 数据模型 + 项目脚手架</td>
+      </tr>
+      <tr>
+        <td style="padding:10px; border-bottom:1px solid #eee;"><strong>👨‍💻 成员2</strong></td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">course + review</td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">课程发布/搜索 + 评价评分</td>
+      </tr>
+      <tr>
+        <td style="padding:10px; border-bottom:1px solid #eee;"><strong>👨‍💻 成员3</strong></td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">booking + payment</td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">预约流程 + 模拟支付</td>
+      </tr>
+      <tr>
+        <td style="padding:10px; border-bottom:1px solid #eee;"><strong>👨‍💻 成员4</strong></td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">chat + parent</td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">实时聊天 + 家长功能</td>
+      </tr>
+      <tr>
+        <td style="padding:10px; border-bottom:1px solid #eee;"><strong>👨‍💻 成员5</strong></td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">admin + 前端统一</td>
+        <td style="padding:10px; border-bottom:1px solid #eee;">管理后台 + 整体UI风格 + 仪表盘</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <h3>🔄 模块间依赖关系</h3>
+  <div style="font-family: monospace; font-size:14px; padding:16px; background:#fafafa; border-radius:4px;">
+    auth ──────────────► 所有模块（登录保护）<br>
+    course ◄─────────── review（课程关联评价）<br>
+    booking ◄────────── course（预约关联课程）<br>
+    booking ◄────────── payment（预约触发支付）<br>
+    parent ◄─────────── booking（查看预约记录）<br>
+    parent ◄─────────── payment（查看消费记录）<br>
+    chat ◄───────────── booking（已确认预约才能聊天）<br>
+    admin ◄──────────── course（审核教师课程）
+  </div>
+</div>

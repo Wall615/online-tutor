@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}我的收藏 — 师说{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 1.25rem;">♡ 我的收藏</h2>
+
+{% if courses %}
+<div class="row card-stagger">
+    {% for course in courses %}
+    <div class="col-md-4 col-lg-3 mb-4">
+        <a href="{{ url_for('course.detail', course_id=course.id) }}" style="text-decoration: none; color: inherit;">
+            <div class="card course-card card-hover">
+                {% if course.cover_image %}
+                <img src="{{ url_for('static', filename='uploads/covers/' + course.cover_image) }}" class="card-img-top" style="height: 140px; object-fit: cover;" alt="{{ course.title }}">
+                {% else %}
+                <div style="height: 6px; background: linear-gradient(90deg, var(--primary-soft), var(--accent-glow));"></div>
+                {% endif %}
+                <div class="card-body">
+                    <div style="margin-bottom: 0.5rem;">
+                        <span class="subject-badge">{{ course.subject }}</span>
+                    </div>
+                    <h5 class="card-title">{{ course.title }}</h5>
+                    <p class="card-text">{{ course.description[:80] }}{% if course.description|length > 80 %}…{% endif %}</p>
+                    <div class="meta-row">
+                        <span class="price-tag">¥{{ "%.0f"|format(course.price) }}</span>
+                        <span style="font-size: 0.78rem; color: var(--ink-muted);">{{ course.duration }}分钟</span>
+                    </div>
+                    <div class="meta-row" style="margin-bottom: 0;">
+                        <span class="teacher-link">👨‍🏫 {{ course.teacher.username }}</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="empty-icon">♡</span>
+    <h4>还没有收藏课程</h4>
+    <p>浏览课程时点击心形图标即可收藏</p>
+    <a href="{{ url_for('course.index') }}" class="btn btn-primary btn-lg">发现课程</a>
+</div>
+{% endif %}
+{% endblock %}

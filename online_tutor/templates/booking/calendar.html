@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}课程日历 — 师说{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 1rem;">📅 课程日历</h2>
+
+<div class="card" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-lg);">
+    <div class="card-body" style="padding: 1.5rem;">
+        <!-- Month navigation -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <a href="{{ url_for('booking.calendar', year=prev_year, month=prev_month) }}"
+               class="btn btn-sm btn-light">← 上月</a>
+            <h4 style="margin: 0; font-weight: 800;">{{ month_name }} {{ year }}</h4>
+            <a href="{{ url_for('booking.calendar', year=next_year, month=next_month) }}"
+               class="btn btn-sm btn-light">下月 →</a>
+        </div>
+
+        <!-- Calendar grid -->
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+                    background: var(--border-light); border-radius: var(--radius-md); overflow: hidden;">
+            <!-- Day headers -->
+            {% for d in ['一','二','三','四','五','六','日'] %}
+            <div style="background: var(--bg-warm); padding: 0.5rem 0; text-align: center;
+                        font-size: 0.78rem; font-weight: 700; color: var(--ink-muted);">{{ d }}</div>
+            {% endfor %}
+
+            <!-- Day cells -->
+            {% for week in weeks %}
+                {% for day in week %}
+                    {% if day is none %}
+                    <div style="background: var(--bg-surface); min-height: 80px; padding: 4px;"></div>
+                    {% else %}
+                    <div style="background: {{ '#FDF0E8' if day.is_today else 'var(--bg-surface)' }};
+                                min-height: 80px; padding: 4px 6px;
+                                {% if day.is_today %}border: 2px solid var(--accent);{% endif %}">
+                        <div style="font-size: 0.78rem; font-weight: {{ 700 if day.is_today else 500 }};
+                                    color: {{ 'var(--accent)' if day.is_today else 'var(--ink)' }};
+                                    margin-bottom: 2px;">{{ day.day }}</div>
+                        {% for b in day.bookings[:3] %}
+                        <div style="font-size: 0.6rem; padding: 1px 5px; border-radius: 3px; margin-bottom: 1px;
+                                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                                    background: {{ {'pending':'#FDF6E8','confirmed':'#EBF1F8','completed':'#EDF5ED','cancelled':'#FDF0F0'}.get(b.status, '#F6F2EC') }};
+                                    color: {{ {'pending':'#7a5e20','confirmed':'#2C4A6E','completed':'#3d6b3d','cancelled':'#8b3d3d'}.get(b.status, '#6B5E53') }};"
+                                title="{{ b.course.title }} ({{ b.scheduled_time.strftime('%H:%M') }})">
+                            {{ b.scheduled_time.strftime('%H:%M') }} {{ b.course.title[:6] }}
+                        </div>
+                        {% endfor %}
+                        {% if day.bookings|length > 3 %}
+                        <div style="font-size: 0.6rem; color: var(--ink-light);">+{{ day.bookings|length - 3 }} 更多</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <!-- Legend -->
+        <div style="display: flex; gap: 1.5rem; margin-top: 1rem; font-size: 0.75rem; color: var(--ink-muted);">
+            <span>🟡 待确认</span><span>🔵 已确认</span><span>🟢 已完成</span><span>🔴 已取消</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

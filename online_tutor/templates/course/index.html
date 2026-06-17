@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}发现好老师 — 师说{% endblock %}
+{% block content %}
+
+<!-- Hero 搜索区 -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h2>找到<span class="hero-accent">对的人</span>，学<span class="hero-accent">对的事</span></h2>
+        <p class="hero-subtitle">搜索课程，开启你的学习之旅</p>
+        <form method="GET" class="hero-search-bar">
+            <input type="text" class="form-control" name="keyword"
+                   placeholder="搜索课程名称或关键词…" value="{{ current_keyword }}"
+                   style="flex: 2;">
+            <select class="form-select" name="subject" style="flex: 1;">
+                <option value="">全部科目</option>
+                {% for s in all_subjects %}
+                    <option value="{{ s }}" {% if current_subject == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+            <select class="form-select" name="sort" style="flex: 0.8;">
+                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>最新</option>
+                <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>价格↑</option>
+                <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>价格↓</option>
+                <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>评分最高</option>
+            </select>
+            <button type="submit" class="btn">搜索</button>
+        </form>
+    </div>
+</section>
+
+<!-- 课程列表 -->
+{% if courses.items %}
+<div class="row">
+    {% for course in courses.items %}
+    <div class="col-md-4 col-lg-3 mb-4">
+        <a href="{{ url_for('course.detail', course_id=course.id) }}" style="text-decoration: none; color: inherit;">
+            <div class="card course-card card-hover" style="position: relative;">
+                {% if current_user.is_authenticated and (current_user.is_student() or current_user.is_parent()) %}
+                <span class="fav-btn {{ 'active' if course.id in favorited_ids }}"
+                      onclick="toggleFav(event, {{ course.id }}, this)"
+                      style="position: absolute; top: 8px; right: 8px; z-index: 10; cursor: pointer;
+                             font-size: 1.4rem; color: {{ 'var(--danger)' if course.id in favorited_ids else 'rgba(255,255,255,0.8)' }};
+                             text-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: transform 0.2s;"
+                      title="{{ '取消收藏' if course.id in favorited_ids else '收藏' }}">
+                    {{ '♥' if course.id in favorited_ids else '♡' }}
+                </span>
+                {% endif %}
+                {% if course.cover_image %}
+                <img src="{{ url_for('static', filename='uploads/covers/' + course.cover_image) }}" class="card-img-top" style="height: 140px; object-fit: cover;" alt="{{ course.title }}">
+                {% else %}
+                <div style="height: 6px; background: linear-gradient(90deg, var(--primary-soft), var(--accent-glow));"></div>
+                {% endif %}
+                <div class="card-body">
+                    <div style="margin-bottom: 0.5rem;">
+                        <span class="subject-badge">{{ course.subject }}</span>
+                    </div>
+                    <h5 class="card-title">{{ course.title }}</h5>
+                    <p class="card-text">{{ course.description[:80] }}{% if course.description|length > 80 %}…{% endif %}</p>
+                    <div class="meta-row">
+                        <span class="price-tag">¥{{ "%.0f"|format(course.price) }}</span>
+                        <span style="font-size: 0.78rem; color: var(--ink-muted);">{{ course.duration }}分钟</span>
+                    </div>
+                    <div class="meta-row" style="margin-bottom: 0;">
+                        <span class="teacher-link">👨‍🏫 {{ course.teacher.username }}</span>
+                        {% if course.teacher.teacher_profile and course.teacher.teacher_profile.rating_avg > 0 %}
+                            <span class="star-rating small">★{{ "%.1f"|format(course.teacher.teacher_profile.rating_avg) }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 分页 -->
+{% if courses.pages > 1 %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% for p in range(1, courses.pages + 1) %}
+            <li class="page-item {% if p == courses.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('course.index', page=p, subject=current_subject, keyword=current_keyword, sort=current_sort) }}">{{ p }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+    <h4 style="font-weight: 600;">暂无相关课程</h4>
+    <p style="color: var(--ink-muted);">调整搜索条件试试，或<a href="{{ url_for('course.index') }}">浏览全部课程</a></p>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block scripts %}
+<script>
+function toggleFav(event, courseId, el) {
+    event.preventDefault();
+    event.stopPropagation();
+    fetch('/course/favorites/toggle/' + courseId, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': '{{ csrf_token }}' },
+        body: '_csrf_token=' + encodeURIComponent('{{ csrf_token }}')
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'added') {
+                el.innerHTML = '♥';
+                el.style.color = 'var(--danger)';
+                el.title = '取消收藏';
+            } else {
+                el.innerHTML = '♡';
+                el.style.color = 'rgba(255,255,255,0.8)';
+                el.title = '收藏';
+            }
+        });
+}
+</script>
+{% endblock %}

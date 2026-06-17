@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ teacher.username }} 的评价 — 师说{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 0.25rem;">⭐ {{ teacher.username }} 的评价</h2>
+{% if teacher.teacher_profile and teacher.teacher_profile.rating_avg > 0 %}
+    <p style="color: var(--ink-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+        平均评分 <span class="star-rating">★{{ "%.1f"|format(teacher.teacher_profile.rating_avg) }}</span>
+        · {{ reviews|length }} 条评价
+    </p>
+{% endif %}
+
+{% if reviews %}
+    {% for review in reviews %}
+    <div class="card mb-3" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-md);">
+        <div class="card-body" style="padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <strong>{{ review.student.username }}</strong>
+                <span style="font-size: 0.8rem; color: var(--ink-muted);">{{ review.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <div style="margin-bottom: 0.35rem;">
+                {% for i in range(5) %}
+                    {% if i < review.rating %}<span class="star-rating">★</span>{% else %}<span class="star-empty">★</span>{% endif %}
+                {% endfor %}
+            </div>
+            {% if review.comment %}<p style="margin: 0; color: var(--ink-muted); font-size: 0.9rem;">{{ review.comment }}</p>{% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="empty-state">
+    <span class="empty-icon">⭐</span>
+    <h4>暂无评价</h4>
+    <p>还没有学员为这位教师留下评价</p>
+</div>
+{% endif %}
+{% endblock %}

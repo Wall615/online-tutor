@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}编辑课程 — 师说{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card" style="border: none; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+            <div class="card-body" style="padding: 2.25rem;">
+                <h2 style="font-weight: 800; margin-bottom: 0.25rem;">✏️ 编辑课程</h2>
+                <p style="color: var(--ink-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">修改课程信息和上架状态</p>
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="title" class="form-label">课程标题</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ course.title }}" required maxlength="200">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="subject" class="form-label">科目</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                {% for s in ['语文','数学','英语','物理','化学','生物','历史','地理','政治','编程','音乐','美术','其他'] %}
+                                    <option value="{{ s }}" {% if course.subject == s %}selected{% endif %}>{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">课程描述</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" maxlength="2000">{{ course.description }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cover_image" class="form-label">课程封面（可选）</label>
+                        {% if course.cover_image %}
+                        <div class="mb-2"><img src="{{ url_for('static', filename='uploads/covers/' + course.cover_image) }}" style="max-height: 120px; border-radius: var(--radius-sm);"></div>
+                        {% endif %}
+                        <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
+                        <small style="color: var(--ink-light);">支持 png/jpg/gif/webp，上传新图片将替换旧封面</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="price" class="form-label">价格（元）</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="{{ course.price }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="duration" class="form-label">时长（分钟）</label>
+                            <select class="form-select" id="duration" name="duration">
+                                {% for m in [30,60,90,120] %}
+                                    <option value="{{ m }}" {% if course.duration == m %}selected{% endif %}>{{ m }} 分钟</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="status" class="form-label">状态</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="active" {% if course.status == 'active' %}selected{% endif %}>上架</option>
+                                <option value="inactive" {% if course.status == 'inactive' %}selected{% endif %}>下架</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">保存修改</button>
+                    <a href="{{ url_for('course.my_courses') }}" class="btn btn-light btn-lg ms-2">取消</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

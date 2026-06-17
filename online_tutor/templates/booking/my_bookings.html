@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}我的预约 — 师说{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 1.25rem;">📅 {% if is_parent %}孩子的预约{% else %}我的预约{% endif %}</h2>
+
+{% if bookings %}
+<div class="card" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-lg); overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table" style="margin: 0;">
+            <thead>
+                <tr>
+                    <th>课程</th>
+                    {% if is_parent %}<th>学生</th>{% endif %}
+                    <th>教师</th>
+                    <th>上课时间</th>
+                    <th>价格</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('course.detail', course_id=booking.course_id) }}" style="font-weight: 600;">
+                            {{ booking.course.title }}
+                        </a>
+                    </td>
+                    {% if is_parent %}
+                    <td><span class="badge" style="background: var(--primary-soft); color: var(--primary);">{{ students_map.get(booking.student_id, {}).username or '未知' }}</span></td>
+                    {% endif %}
+                    <td>{{ booking.teacher_ref.username }}</td>
+                    <td style="font-size: 0.85rem;">{{ booking.scheduled_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>¥{{ "%.2f"|format(booking.payment.amount if booking.payment else 0) }}</td>
+                    <td>
+                        <span class="badge status-{{ booking.status }}">{{ {
+                            'pending': '待支付',
+                            'confirmed': '已确认',
+                            'cancelled': '已取消',
+                            'completed': '已完成'
+                        }.get(booking.status, booking.status) }}</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                            {% if booking.status == 'pending' and booking.payment and booking.payment.status == 'pending' %}
+                                <a href="{{ url_for('payment.pay', booking_id=booking.id) }}" class="btn btn-warning btn-sm">支付</a>
+                            {% endif %}
+                            {% if booking.status == 'confirmed' %}
+                                <a href="{{ url_for('chat.chat_room', booking_id=booking.id) }}" class="btn btn-outline-primary btn-sm">聊天</a>
+                            {% endif %}
+                            {% if booking.status == 'completed' and not booking.review %}
+                                <a href="{{ url_for('review.create', booking_id=booking.id) }}" class="btn btn-outline-warning btn-sm">评价</a>
+                            {% endif %}
+                            {% if booking.status in ('pending', 'confirmed') %}
+                                <a href="{{ url_for('booking.cancel', booking_id=booking.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('确定取消？')">取消</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+    <h4 style="font-weight: 600;">还没有任何预约</h4>
+    <p style="color: var(--ink-muted); margin-bottom: 1.5rem;">去浏览课程，找到适合你的老师</p>
+    <a href="{{ url_for('course.index') }}" class="btn btn-primary">发现课程</a>
+</div>
+{% endif %}
+{% endblock %}

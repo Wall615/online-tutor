@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}登录 — 师说{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card auth-card">
+            <div class="card-body">
+                <h2>欢迎回来</h2>
+                <p style="text-align:center; color: var(--ink-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    登录你的账号，继续学习之旅
+                </p>
+                <form method="POST">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                               required autofocus placeholder="输入用户名" maxlength="80">
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               required placeholder="输入密码">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">登录</button>
+                </form>
+                <hr style="border-color: var(--border-light); margin: 1.5rem 0;">
+                <p class="text-center mb-0" style="font-size: 0.85rem; color: var(--ink-muted);">
+                    还没有账号？<a href="{{ url_for('auth.register') }}">立即注册 →</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

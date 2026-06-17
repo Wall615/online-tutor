@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}聊天 — {{ other_user.username }} — 师说{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card" style="border: none; box-shadow: var(--shadow-md); border-radius: var(--radius-lg); overflow: hidden;">
+            <!-- 聊天头部 -->
+            <div style="padding: 1rem 1.5rem; background: var(--bg-surface); border-bottom: 1px solid var(--border-light);
+                        display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="font-size: 1rem;">{{ other_user.username }}</strong>
+                    <span style="font-size: 0.78rem; color: var(--ink-muted); margin-left: 0.5rem;">
+                        {{ booking.course.title }}
+                    </span>
+                </div>
+                <span class="badge status-{{ booking.status }}">
+                    {{ {'confirmed': '已确认', 'completed': '已完成'}.get(booking.status, booking.status) }}
+                </span>
+            </div>
+
+            <!-- 消息区 -->
+            <div class="chat-container" id="chatMessages">
+                {% for message in messages %}
+                <div class="chat-message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+                    <div class="message-content">{{ message.content }}</div>
+                    <div class="message-time">{{ message.sent_at.strftime('%H:%M') }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- 输入栏 -->
+            <div class="chat-input-bar">
+                <input type="text" id="messageInput" class="form-control" placeholder="输入消息…" autocomplete="off">
+                <button type="submit" id="sendBtn" class="btn btn-primary">发送</button>
+            </div>
+        </div>
+        <a href="{{ url_for('chat.chat_list') }}" class="btn btn-light btn-sm mt-3">← 返回消息列表</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let lastMessageId = {{ messages|length > 0 and messages[-1].id or 0 }};
+const chatContainer = document.getElementById('chatMessages');
+const messageInput = document.getElementById('messageInput');
+const sendBtn = document.getElementById('sendBtn');
+const sendUrl = "{{ url_for('chat.send_message', booking_id=booking.id) }}";
+const pollUrl = "{{ url_for('chat.get_messages', booking_id=booking.id) }}";
+const currentUserId = {{ current_user.id }};
+
+function scrollToBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
+scrollToBottom();
+
+function sendMessage() {
+    const content = messageInput.value.trim();
+    if (!content) return;
+    fetch(sendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': '{{ csrf_token }}' },
+        body: 'content=' + encodeURIComponent(content) + '&_csrf_token=' + encodeURIComponent('{{ csrf_token }}')
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) { alert(data.error); return; }
+        lastMessageId = data.id;
+        appendMessage(data.content, true, data.sent_at);
+        messageInput.value = '';
+    });
+}
+
+sendBtn.addEventListener('click', sendMessage);
+messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendMessage();
+});
+
+setInterval(function() {
+    fetch(pollUrl + '?after=' + lastMessageId)
+        .then(r => r.json())
+        .then(messages => {
+            messages.forEach(function(msg) {
+                if (msg.sender_id !== currentUserId) appendMessage(msg.content, false, msg.sent_at);
+                lastMessageId = msg.id;
+            });
+        });
+}, 3000);
+
+function appendMessage(content, isSent, time) {
+    const div = document.createElement('div');
+    div.className = 'chat-message ' + (isSent ? 'sent' : 'received');
+    div.innerHTML = '<div class="message-content">' + escapeHtml(content) + '</div>' +
+                    '<div class="message-time">' + time + '</div>';
+    chatContainer.appendChild(div);
+    scrollToBottom();
+}
+
+function escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}发布课程 — 师说{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card" style="border: none; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+            <div class="card-body" style="padding: 2.25rem;">
+                <h2 style="font-weight: 800; margin-bottom: 0.25rem;">📚 发布新课程</h2>
+                <p style="color: var(--ink-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">填写课程信息，让学生找到你</p>
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="title" class="form-label">课程标题 *</label>
+                            <input type="text" class="form-control" id="title" name="title" required autofocus maxlength="200"
+                                   placeholder="如：高中数学一对一辅导">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="subject" class="form-label">科目 *</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="">选择科目</option>
+                                {% for s in ['语文','数学','英语','物理','化学','生物','历史','地理','政治','编程','音乐','美术','其他'] %}
+                                    <option value="{{ s }}">{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">课程描述</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" maxlength="2000"
+                                  placeholder="介绍课程内容、教学方式和适合的学生群体…"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cover_image" class="form-label">课程封面（可选）</label>
+                        <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
+                        <small style="color: var(--ink-light);">支持 png/jpg/gif/webp，留空则不显示封面</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="price" class="form-label">价格（元）</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="0" placeholder="0.00">
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="duration" class="form-label">时长（分钟）</label>
+                            <select class="form-select" id="duration" name="duration">
+                                <option value="30">30 分钟</option>
+                                <option value="60" selected>60 分钟</option>
+                                <option value="90">90 分钟</option>
+                                <option value="120">120 分钟</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">发布课程</button>
+                    <a href="{{ url_for('course.my_courses') }}" class="btn btn-light btn-lg ms-2">取消</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

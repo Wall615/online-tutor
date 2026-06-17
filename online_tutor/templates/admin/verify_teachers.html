@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}审核教师 — 师说{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 1.25rem;">✅ 教师审核</h2>
+
+{% if profiles %}
+<div class="card" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-lg); overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table" style="margin: 0;">
+            <thead>
+                <tr>
+                    <th>用户名</th>
+                    <th>擅长科目</th>
+                    <th>教育背景</th>
+                    <th>时薪</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                <tr>
+                    <td>
+                        <strong>{{ profile.user.username }}</strong>
+                        <br><small style="color: var(--ink-muted);">{{ profile.user.email }}</small>
+                    </td>
+                    <td>{{ profile.subjects or '—' }}</td>
+                    <td>{{ profile.education or '—' }}</td>
+                    <td>¥{{ "%.0f"|format(profile.hourly_rate) }}</td>
+                    <td>
+                        {% if profile.verified %}
+                            <span class="verified-badge verified-yes">✓ 已通过</span>
+                        {% else %}
+                            <span class="verified-badge verified-no">⏳ 待审核</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.35rem;">
+                            {% if profile.verified %}
+                                <a href="{{ url_for('admin.verify_teacher', profile_id=profile.id, action='reject') }}" class="btn btn-outline-danger btn-sm">驳回</a>
+                            {% else %}
+                                <a href="{{ url_for('admin.verify_teacher', profile_id=profile.id, action='approve') }}" class="btn btn-success btn-sm">通过</a>
+                            {% endif %}
+                            <a href="{{ url_for('auth.teacher_detail', user_id=profile.user_id) }}" class="btn btn-outline-secondary btn-sm">查看</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="empty-icon">✅</span>
+    <h4>暂无待审核教师</h4>
+    <p>所有教师已处理完毕</p>
+</div>
+{% endif %}
+{% endblock %}

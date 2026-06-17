@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}绑定学生 — 师说{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card" style="border: none; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+            <div class="card-body" style="padding: 2rem;">
+                <h2 style="font-weight: 800; margin-bottom: 0.25rem;">🔗 绑定学生账号</h2>
+                <p style="color: var(--ink-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">输入学生的用户名完成绑定</p>
+                <form method="POST">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <div class="mb-4">
+                        <label for="student_username" class="form-label">学生用户名</label>
+                        <input type="text" class="form-control" id="student_username" name="student_username"
+                               required placeholder="输入学生的用户名" maxlength="80">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">确认绑定</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-lg);">
+            <div class="card-body" style="padding: 2rem;">
+                <h3 style="font-weight: 700; margin-bottom: 1rem;">已绑定的学生</h3>
+                {% if students %}
+                    <div class="list-group" style="border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-light);">
+                        {% for student in students %}
+                            <div style="display: flex; justify-content: space-between; align-items: center;
+                                        padding: 0.85rem 1rem; background: var(--bg-surface);
+                                        border-bottom: 1px solid var(--border-light);">
+                                <span>🎓 <strong>{{ student.username }}</strong></span>
+                                <a href="{{ url_for('parent.student_bookings', student_id=student.id) }}" class="btn btn-outline-primary btn-sm">查看</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color: var(--ink-muted);">暂无绑定学生</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

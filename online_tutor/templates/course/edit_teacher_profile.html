@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}编辑教师资料 — 师说{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card" style="border: none; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+            <div class="card-body" style="padding: 2.25rem;">
+                <h2 style="font-weight: 800; margin-bottom: 0.25rem;">📋 编辑教师资料</h2>
+                <p style="color: var(--ink-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">完善资料，让学生更了解你</p>
+                <form method="POST">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <div class="mb-3">
+                        <label for="subjects" class="form-label">擅长科目</label>
+                        <input type="text" class="form-control" id="subjects" name="subjects" maxlength="256"
+                               value="{{ profile.subjects }}" placeholder="用逗号分隔，如：数学,物理,编程">
+                    </div>
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">个人简介</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="4" maxlength="2000"
+                                  placeholder="介绍你的教学经验、教学风格和教学理念…">{{ profile.bio }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="hourly_rate" class="form-label">时薪（元/小时）</label>
+                            <input type="number" class="form-control" id="hourly_rate" name="hourly_rate"
+                                   step="0.01" min="0" value="{{ profile.hourly_rate }}" placeholder="0.00">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="education" class="form-label">教育背景</label>
+                            <input type="text" class="form-control" id="education" name="education" maxlength="256"
+                                   value="{{ profile.education }}" placeholder="如：清华大学 计算机科学 硕士">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">可用时段</label>
+                        <p style="font-size: 0.78rem; color: var(--ink-light); margin-bottom: 0.75rem;">设置每周固定的可授课时间段，学生预约时会看到</p>
+                        <div id="slot-list" style="margin-bottom: 0.75rem;">
+                            {% for slot in slots %}
+                            <div class="slot-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.4rem; align-items: center;">
+                                <select name="slot_day" class="form-select" style="width: auto; flex: 1;">
+                                    {% for d in ['周一','周二','周三','周四','周五','周六','周日'] %}
+                                    <option value="{{ loop.index0 }}" {% if slot.day_of_week == loop.index0 %}selected{% endif %}>{{ d }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="time" name="slot_start" class="form-control" style="width: auto;" value="{{ slot.start_time }}">
+                                <span style="color: var(--ink-muted);">至</span>
+                                <input type="time" name="slot_end" class="form-control" style="width: auto;" value="{{ slot.end_time }}">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.slot-row').remove()">✕</button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSlot()">+ 添加时段</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">保存资料</button>
+                    <a href="{{ url_for('auth.profile') }}" class="btn btn-light btn-lg ms-2">取消</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function addSlot() {
+    var row = document.createElement('div');
+    row.className = 'slot-row';
+    row.style.cssText = 'display:flex;gap:0.5rem;margin-bottom:0.4rem;align-items:center;';
+    var days = ['周一','周二','周三','周四','周五','周六','周日'];
+    var dayOpts = days.map(function(d, i) { return '<option value="'+i+'">'+d+'</option>'; }).join('');
+    row.innerHTML = '<select name="slot_day" class="form-select" style="width:auto;flex:1;">'+dayOpts+'</select>' +
+        '<input type="time" name="slot_start" class="form-control" style="width:auto;" value="09:00">' +
+        '<span style="color:var(--ink-muted);">至</span>' +
+        '<input type="time" name="slot_end" class="form-control" style="width:auto;" value="10:00">' +
+        '<button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest(\'.slot-row\').remove()">✕</button>';
+    document.getElementById('slot-list').appendChild(row);
+}
+</script>
+{% endblock %}

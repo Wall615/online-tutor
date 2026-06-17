@@ -1,0 +1,130 @@
+<h2>数据库模型设计（ER 图）</h2>
+<p class="subtitle">8张核心表，覆盖全部功能模块</p>
+
+<div class="section">
+  <h3>📊 实体关系图</h3>
+  <div class="mockup">
+    <div class="mockup-header">SQLite 数据库 — 表结构与关联</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 12px; line-height: 1.8; padding: 20px;">
+
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+
+        <!-- User 表 -->
+        <div style="background:#e3f2fd; border-radius:6px; padding:12px; border-top:3px solid #1565c0;">
+          <strong>👤 User（用户表）</strong>
+          <hr style="border-color:#bbdefb;">
+          id (PK)<br>
+          username<br>
+          email<br>
+          password_hash<br>
+          role: student/teacher/parent/admin<br>
+          phone<br>
+          avatar<br>
+          created_at
+        </div>
+
+        <!-- Teacher Profile -->
+        <div style="background:#e8f5e9; border-radius:6px; padding:12px; border-top:3px solid #2e7d32;">
+          <strong>👨‍🏫 TeacherProfile（教师资料）</strong>
+          <hr style="border-color:#c8e6c9;">
+          id (PK)<br>
+          user_id (FK → User)<br>
+          subjects<br>
+          bio<br>
+          hourly_rate<br>
+          education<br>
+          verified: 0/1<br>
+          rating_avg
+        </div>
+
+        <!-- Course -->
+        <div style="background:#fff3e0; border-radius:6px; padding:12px; border-top:3px solid #e65100;">
+          <strong>📚 Course（课程表）</strong>
+          <hr style="border-color:#ffe0b2;">
+          id (PK)<br>
+          teacher_id (FK → User)<br>
+          title<br>
+          subject<br>
+          description<br>
+          price<br>
+          duration (分钟)<br>
+          status: active/inactive<br>
+          created_at
+        </div>
+
+        <!-- Booking -->
+        <div style="background:#fce4ec; border-radius:6px; padding:12px; border-top:3px solid #c62828;">
+          <strong>📅 Booking（预约表）</strong>
+          <hr style="border-color:#f8bbd0;">
+          id (PK)<br>
+          student_id (FK → User)<br>
+          course_id (FK → Course)<br>
+          scheduled_time<br>
+          status: pending/confirmed/cancelled/completed<br>
+          created_at
+        </div>
+
+        <!-- Message -->
+        <div style="background:#f3e5f5; border-radius:6px; padding:12px; border-top:3px solid #6a1b9a;">
+          <strong>💬 Message（消息表）</strong>
+          <hr style="border-color:#e1bee7;">
+          id (PK)<br>
+          sender_id (FK → User)<br>
+          receiver_id (FK → User)<br>
+          booking_id (FK → Booking)<br>
+          content<br>
+          sent_at
+        </div>
+
+        <!-- Review -->
+        <div style="background:#fff9c4; border-radius:6px; padding:12px; border-top:3px solid #f9a825;">
+          <strong>⭐ Review（评价表）</strong>
+          <hr style="border-color:#fff176;">
+          id (PK)<br>
+          booking_id (FK → Booking)<br>
+          student_id (FK → User)<br>
+          teacher_id (FK → User)<br>
+          rating: 1-5<br>
+          comment<br>
+          created_at
+        </div>
+
+        <!-- ParentStudent -->
+        <div style="background:#e0f7fa; border-radius:6px; padding:12px; border-top:3px solid #00838f;">
+          <strong>👨‍👩‍👧 ParentStudent（绑定表）</strong>
+          <hr style="border-color:#b2ebf2;">
+          id (PK)<br>
+          parent_id (FK → User)<br>
+          student_id (FK → User)<br>
+          bound_at
+        </div>
+
+        <!-- Payment -->
+        <div style="background:#efebe9; border-radius:6px; padding:12px; border-top:3px solid #4e342e;">
+          <strong>💰 Payment（支付表）</strong>
+          <hr style="border-color:#d7ccc8;">
+          id (PK)<br>
+          booking_id (FK → Booking)<br>
+          student_id (FK → User)<br>
+          amount<br>
+          status: pending/paid/refunded<br>
+          paid_at
+        </div>
+
+      </div>
+
+      <!-- 关联线说明 -->
+      <div style="margin-top: 16px; padding:12px; background:#fafafa; border-radius:6px;">
+        <strong>🔗 关键关联：</strong><br>
+        User(teacher) 1→1 TeacherProfile &nbsp;|&nbsp;
+        Teacher 1→N Course &nbsp;|&nbsp;
+        Course 1→N Booking &nbsp;|&nbsp;
+        Booking 1→1 Payment &nbsp;|&nbsp;
+        Booking 1→1 Review &nbsp;|&nbsp;
+        Booking 1→N Message &nbsp;|&nbsp;
+        Parent N→N Student (via ParentStudent)
+      </div>
+
+    </div>
+  </div>
+</div>

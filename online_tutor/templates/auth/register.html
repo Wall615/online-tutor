@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}注册 — 师说{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card auth-card">
+            <div class="card-body">
+                <h2>创建账号</h2>
+                <p style="text-align:center; color: var(--ink-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    选择你的角色，开始使用师说
+                </p>
+                <form method="POST">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                               required autofocus placeholder="给自己起个名字">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               required placeholder="your@email.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               required minlength="6" maxlength="128" placeholder="至少6位，建议包含大小写字母和数字">
+                        <div class="password-strength mt-2" style="display: none;">
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span class="strength-seg" id="seg1"></span>
+                                <span class="strength-seg" id="seg2"></span>
+                                <span class="strength-seg" id="seg3"></span>
+                                <span class="strength-seg" id="seg4"></span>
+                            </div>
+                            <small id="strength-text" style="font-size: 0.72rem;"></small>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">选择角色</label>
+                        <div class="role-selector">
+                            <label class="role-option">
+                                <input type="radio" name="role" value="student" checked> 🎓 学生
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="role" value="teacher"> 👨‍🏫 教师
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="role" value="parent"> 👨‍👩‍👧 家长
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">注册</button>
+                </form>
+                <hr style="border-color: var(--border-light); margin: 1.5rem 0;">
+                <p class="text-center mb-0" style="font-size: 0.85rem; color: var(--ink-muted);">
+                    已有账号？<a href="{{ url_for('auth.login') }}">立即登录 →</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<style>
+    .strength-seg {
+        flex: 1; height: 4px; border-radius: 2px;
+        background: var(--border); transition: background 0.3s;
+    }
+    .strength-seg.weak { background: var(--danger); }
+    .strength-seg.medium { background: var(--warning); }
+    .strength-seg.strong { background: var(--success); }
+</style>
+<script>
+document.getElementById('password').addEventListener('input', function() {
+    var pw = this.value;
+    var bar = document.querySelector('.password-strength');
+    var segs = [document.getElementById('seg1'), document.getElementById('seg2'),
+                document.getElementById('seg3'), document.getElementById('seg4')];
+    var txt = document.getElementById('strength-text');
+    if (!pw) { bar.style.display = 'none'; return; }
+    bar.style.display = 'block';
+
+    var score = 0;
+    if (pw.length >= 6) score++;
+    if (pw.length >= 10) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+
+    segs.forEach(function(s, i) {
+        s.className = 'strength-seg';
+        if (i < score) {
+            s.classList.add(score <= 2 ? 'weak' : score <= 3 ? 'medium' : 'strong');
+        }
+    });
+
+    var msgs = ['', '较弱 — 建议增加字符类型', '一般 — 还可更强', '良好', '很强 👍'];
+    txt.textContent = msgs[Math.min(score, 4)];
+    txt.style.color = score <= 1 ? 'var(--danger)' : score <= 2 ? 'var(--warning)' : score <= 3 ? 'var(--primary)' : 'var(--success)';
+});
+</script>
+{% endblock %}

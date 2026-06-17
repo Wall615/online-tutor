@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}我的消息 — 师说{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 1.25rem;">💬 我的消息</h2>
+
+{% if bookings %}
+<div class="row card-stagger">
+    {% for booking in bookings %}
+    <div class="col-md-6 mb-3">
+        <a href="{{ url_for('chat.chat_room', booking_id=booking.id) }}" style="text-decoration: none; color: inherit;">
+            <div class="card card-hover" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-lg);">
+                <div class="card-body" style="padding: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-soft);
+                                        color: var(--primary); font-size: 1.2rem; display: flex; align-items: center;
+                                        justify-content: center; flex-shrink: 0;">
+                                {{ '👨‍🏫' if current_user.is_student() else '🎓' }}
+                            </div>
+                            <div>
+                                <strong style="font-size: 0.95rem;">
+                                    {{ booking.teacher_ref.username if current_user.is_student() else booking.student.username }}
+                                </strong>
+                                <p style="margin: 0; font-size: 0.78rem; color: var(--ink-muted);">{{ booking.course.title }}</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right; flex-shrink: 0;">
+                            <span class="badge status-{{ booking.status }}" style="font-size: 0.7rem;">
+                                {{ {'confirmed': '已确认', 'completed': '已完成'}.get(booking.status, booking.status) }}
+                            </span>
+                            <br><small style="font-size: 0.7rem; color: var(--ink-light);">{{ booking.scheduled_time.strftime('%m-%d %H:%M') }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="empty-icon">💬</span>
+    <h4>暂无聊天记录</h4>
+    <p>确认预约后即可开始与对方沟通</p>
+</div>
+{% endif %}
+{% endblock %}

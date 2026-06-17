@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}支付记录 — 师说{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 1.25rem;">💰 支付记录</h2>
+
+{% if payments %}
+<div class="card" style="border: none; box-shadow: var(--shadow-sm); border-radius: var(--radius-lg); overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table" style="margin: 0;">
+            <thead>
+                <tr>
+                    <th>课程</th>
+                    <th>教师</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>支付时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td><strong>{{ payment.booking.course.title }}</strong></td>
+                    <td>{{ payment.booking.teacher_ref.username }}</td>
+                    <td style="font-weight: 700; color: var(--accent);">¥{{ "%.2f"|format(payment.amount) }}</td>
+                    <td>
+                        <span class="badge {% if payment.status == 'paid' %}bg-success{% elif payment.status == 'refunded' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ {'pending': '未支付', 'paid': '已支付', 'refunded': '已退款'}.get(payment.status, payment.status) }}
+                        </span>
+                    </td>
+                    <td style="font-size: 0.82rem; color: var(--ink-muted);">{{ payment.paid_at.strftime('%Y-%m-%d %H:%M') if payment.paid_at else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="empty-icon">💰</span>
+    <h4>暂无支付记录</h4>
+    <p>预约课程并完成支付后，记录会显示在这里</p>
+</div>
+{% endif %}
+{% endblock %}

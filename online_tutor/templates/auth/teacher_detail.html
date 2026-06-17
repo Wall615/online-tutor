@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ teacher.username }} 的教师主页 — 师说{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card teacher-sidebar" style="border: none; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+            <div class="teacher-avatar">👨‍🏫</div>
+            <h5>{{ teacher.username }}</h5>
+            {% if teacher.teacher_profile and teacher.teacher_profile.verified %}
+                <span class="verified-badge verified-yes" style="margin-bottom: 0.75rem;">✓ 已认证</span>
+            {% endif %}
+            {% if teacher.teacher_profile %}
+                <hr style="border-color: var(--border-light); width: 100%;">
+                <div style="width: 100%; text-align: left; font-size: 0.82rem; line-height: 1.8;">
+                    <p><strong>擅长科目</strong><br>{{ teacher.teacher_profile.subjects or '未填写' }}</p>
+                    <p><strong>教育背景</strong><br>{{ teacher.teacher_profile.education or '未填写' }}</p>
+                    <p><strong>时薪</strong><br><span class="price-tag" style="font-size: 1.1rem;">¥{{ "%.2f"|format(teacher.teacher_profile.hourly_rate) }}/小时</span></p>
+                    <p><strong>评分</strong><br>
+                        {% set avg = teacher.teacher_profile.rating_avg %}
+                        {% for i in range(5) %}
+                            {% if i < avg|round(0, 'floor')|int %}
+                                <span class="star-rating">★</span>
+                            {% else %}
+                                <span class="star-empty">★</span>
+                            {% endif %}
+                        {% endfor %}
+                        <span style="color: var(--ink-muted);">({{ "%.1f"|format(avg) }})</span>
+                    </p>
+                </div>
+                {% if teacher.teacher_profile.bio %}
+                    <p style="font-size: 0.82rem; color: var(--ink-muted); line-height: 1.7; margin-top: 0.5rem;">
+                        {{ teacher.teacher_profile.bio }}
+                    </p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-8">
+        <h4 style="font-weight: 700; margin-bottom: 1rem;">📚 该教师的课程</h4>
+        {% set courses = teacher.courses.filter_by(status='active').all() %}
+        {% if courses %}
+            <div class="row card-stagger">
+                {% for course in courses %}
+                <div class="col-md-6 mb-3">
+                    <a href="{{ url_for('course.detail', course_id=course.id) }}" style="text-decoration: none; color: inherit;">
+                        <div class="card course-card card-hover" style="border: none; box-shadow: var(--shadow-sm);">
+                            <div class="card-body" style="padding: 1.25rem;">
+                                <span class="subject-badge" style="margin-bottom: 0.5rem;">{{ course.subject }}</span>
+                                <h5 style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.35rem;">{{ course.title }}</h5>
+                                <p style="font-size: 0.78rem; color: var(--ink-muted); line-height: 1.5; margin-bottom: 0.75rem;">
+                                    {{ course.description[:80] }}{% if course.description|length > 80 %}…{% endif %}
+                                </p>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="price-tag" style="font-size: 1rem;">¥{{ "%.0f"|format(course.price) }}</span>
+                                    <span style="font-size: 0.75rem; color: var(--ink-muted);">{{ course.duration }}分钟</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">📚</span>
+                <h4>暂无课程</h4>
+                <p>该教师还没有发布课程</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}个人资料 — 师说{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card" style="border: none; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+            <div class="card-body" style="padding: 2.25rem;">
+                <h2 style="font-weight: 800; margin-bottom: 1.5rem;">👤 个人资料</h2>
+                <form method="POST">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" value="{{ current_user.username }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">角色</label>
+                        <input type="text" class="form-control" value="{{ {'student':'学生','teacher':'教师','parent':'家长','admin':'管理员'}.get(current_user.role, current_user.role) }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" maxlength="120">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">手机号</label>
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ current_user.phone }}" placeholder="未填写" maxlength="20">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">注册时间</label>
+                        <input type="text" class="form-control" value="{{ current_user.created_at.strftime('%Y-%m-%d %H:%M') }}" disabled>
+                    </div>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </form>
+
+                {% if current_user.is_teacher() and current_user.teacher_profile %}
+                <hr style="border-color: var(--border-light); margin: 1.5rem 0;">
+                <h5 style="font-weight: 700; margin-bottom: 0.75rem;">📋 教师资料</h5>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <span class="badge {% if current_user.teacher_profile.verified %}bg-success{% else %}bg-warning{% endif %}">
+                        {{ '✓ 已认证' if current_user.teacher_profile.verified else '⏳ 待审核' }}
+                    </span>
+                </div>
+                <a href="{{ url_for('course.edit_teacher_profile') }}" class="btn btn-outline-primary btn-sm">编辑教师资料</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

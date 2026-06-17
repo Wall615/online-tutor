@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}预约课程 — 师说{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card auth-card">
+            <div class="card-body" style="padding: 2.25rem;">
+                <h2>📅 预约课程</h2>
+                <p style="text-align: center; color: var(--ink-muted); font-size: 0.82rem; margin-bottom: 1.5rem;">
+                    选择上课时间，提交预约
+                </p>
+
+                <div style="background: var(--bg-warm); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <h5 style="font-weight: 700; margin-bottom: 0.35rem;">{{ course.title }}</h5>
+                    <div style="display: flex; gap: 1.5rem; font-size: 0.85rem; color: var(--ink-muted); margin-bottom: 0.25rem;">
+                        <span>👨‍🏫 {{ course.teacher.username }}</span>
+                        <span>{{ course.subject }}</span>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; font-size: 0.85rem;">
+                        <span style="color: var(--accent); font-weight: 700;">¥{{ "%.2f"|format(course.price) }}</span>
+                        <span style="color: var(--ink-muted);">{{ course.duration }}分钟</span>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    {% if current_user.is_parent() and bound_students %}
+                    <div class="mb-4">
+                        <label for="student_id" class="form-label">选择上课学生</label>
+                        <select class="form-select" id="student_id" name="student_id" required>
+                            <option value="">— 请选择学生 —</option>
+                            {% for s in bound_students %}
+                            <option value="{{ s.id }}">{{ s.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div class="mb-4">
+                        <label for="scheduled_time" class="form-label">选择上课时间</label>
+                        <input type="datetime-local" class="form-control" id="scheduled_time" name="scheduled_time" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">提交预约</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
