@@ -216,6 +216,10 @@ def edit_teacher_profile():
         profile.hourly_rate = request.form.get('hourly_rate', 0, type=float)
         profile.education = request.form.get('education', '').strip()
 
+        if profile.hourly_rate < 0 or profile.hourly_rate > 99999.99:
+            flash('时薪需在 0 ~ 99999.99 之间。', 'danger')
+            return render_template('edit_teacher_profile.html', profile=profile)
+
         # Handle time slots — clear and recreate
         TimeSlot.query.filter_by(teacher_id=current_user.id).delete()
         days = request.form.getlist('slot_day')
