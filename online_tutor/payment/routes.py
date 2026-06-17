@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from datetime import datetime
-from models import db, Booking, Payment, ParentStudent
+from models import db, cst_now, Booking, Payment, ParentStudent
 
 payment_bp = Blueprint('payment', __name__, template_folder='../templates/payment')
 
@@ -39,7 +39,7 @@ def pay(booking_id):
     if request.method == 'POST':
         # Simulate payment — mark as paid immediately
         payment.status = 'paid'
-        payment.paid_at = datetime.utcnow()
+        payment.paid_at = cst_now()
         db.session.commit()
         current_app.logger.info(f'Payment success: booking={booking_id} amount={payment.amount}')
         flash('支付成功！等待教师确认预约。', 'success')

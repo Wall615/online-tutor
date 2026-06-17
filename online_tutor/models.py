@@ -1,7 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+CST = timezone(timedelta(hours=8))
+
+def cst_now():
+    return datetime.now(CST)
 
 db = SQLAlchemy()
 
@@ -16,7 +21,7 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), nullable=False, default='student')  # student/teacher/parent/admin
     phone = db.Column(db.String(20), default='')
     avatar = db.Column(db.String(256), default='default.png')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=cst_now)
 
     # Relationships
     teacher_profile = db.relationship('TeacherProfile', backref='user', uselist=False, cascade='all, delete-orphan')
@@ -81,7 +86,7 @@ class Course(db.Model):
     duration = db.Column(db.Integer, nullable=False, default=60)  # minutes
     status = db.Column(db.String(20), default='active')  # active / inactive
     cover_image = db.Column(db.String(256), default='')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=cst_now)
 
     # Relationships
     bookings = db.relationship('Booking', backref='course', lazy='dynamic')
@@ -99,7 +104,7 @@ class Booking(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     scheduled_time = db.Column(db.DateTime, nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending/confirmed/cancelled/completed
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=cst_now)
 
     # Relationships
     messages = db.relationship('Message', backref='booking', lazy='dynamic')
@@ -119,7 +124,7 @@ class Message(db.Model):
     booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=True)
     content = db.Column(db.Text, nullable=False)
     is_read = db.Column(db.Boolean, default=False, index=True)
-    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    sent_at = db.Column(db.DateTime, default=cst_now)
 
     def __repr__(self):
         return f'<Message {self.id} from={self.sender_id} to={self.receiver_id}>'
@@ -134,7 +139,7 @@ class Review(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer, nullable=False)  # 1-5
     comment = db.Column(db.Text, default='')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=cst_now)
 
     def __repr__(self):
         return f'<Review booking={self.booking_id} rating={self.rating}>'
@@ -146,7 +151,7 @@ class ParentStudent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    bound_at = db.Column(db.DateTime, default=datetime.utcnow)
+    bound_at = db.Column(db.DateTime, default=cst_now)
 
     __table_args__ = (
         db.UniqueConstraint('parent_id', 'student_id', name='uq_parent_student'),
@@ -176,7 +181,7 @@ class Favorite(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=cst_now)
 
     __table_args__ = (
         db.UniqueConstraint('user_id', 'course_id', name='uq_user_course_favorite'),

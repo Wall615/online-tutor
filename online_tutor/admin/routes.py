@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from functools import wraps
 from datetime import datetime
 from sqlalchemy import extract, func
-from models import db, User, TeacherProfile, Course, Booking, Payment
+from models import db, cst_now, User, TeacherProfile, Course, Booking, Payment
 
 admin_bp = Blueprint('admin', __name__, template_folder='../templates/admin')
 
@@ -38,7 +38,7 @@ def dashboard():
     }
 
     # Monthly revenue for current year (line chart)
-    current_year = datetime.utcnow().year
+    current_year = cst_now().year
     monthly_revenue = []
     for month in range(1, 13):
         result = db.session.query(func.sum(Payment.amount)).filter(

@@ -1,6 +1,6 @@
 """Seed the database with demo data for presentation."""
 from app import create_app
-from models import db, User, TeacherProfile, Course, Booking, Payment, Review, Message, ParentStudent
+from models import db, cst_now, User, TeacherProfile, Course, Booking, Payment, Review, Message, ParentStudent
 from datetime import datetime, timedelta
 
 app = create_app()
@@ -96,7 +96,7 @@ with app.app_context():
     db.session.flush()
 
     # ===== Bookings =====
-    now = datetime.utcnow()
+    now = cst_now()
 
     # Booking 1: confirmed (student1 booked course1)
     booking1 = Booking(

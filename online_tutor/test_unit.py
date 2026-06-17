@@ -12,7 +12,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app import create_app
-from models import db, User, TeacherProfile, Course, Booking, Payment, Review, Message, ParentStudent, Favorite, TimeSlot
+from models import db, cst_now, User, TeacherProfile, Course, Booking, Payment, Review, Message, ParentStudent, Favorite, TimeSlot
 
 
 class TestUserModel(unittest.TestCase):
@@ -290,7 +290,7 @@ class TestPaymentModel(unittest.TestCase):
         db.session.commit()
 
         payment.status = 'paid'
-        payment.paid_at = datetime.utcnow()
+        payment.paid_at = cst_now()
         db.session.commit()
         self.assertEqual(payment.status, 'paid')
         self.assertIsNotNone(payment.paid_at)

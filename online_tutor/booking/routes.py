@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from datetime import datetime
 from flask import current_app
-from models import db, Booking, Course, Payment, User, ParentStudent
+from models import db, cst_now, Booking, Course, Payment, User, ParentStudent
 
 booking_bp = Blueprint('booking', __name__, template_folder='../templates/booking')
 
@@ -56,7 +56,7 @@ def create(course_id):
             flash('时间格式不正确。', 'danger')
             return render_template('booking_create.html', course=course, bound_students=bound_students)
 
-        if scheduled_time <= datetime.utcnow():
+        if scheduled_time <= cst_now():
             flash('上课时间必须在当前时间之后。', 'danger')
             return render_template('booking_create.html', course=course, bound_students=bound_students)
 
@@ -205,8 +205,8 @@ def complete(booking_id):
 def calendar():
     """Calendar view of bookings — server-rendered month grid"""
     import calendar as cal_mod
-    year = request.args.get('year', datetime.utcnow().year, type=int)
-    month = request.args.get('month', datetime.utcnow().month, type=int)
+    year = request.args.get('year', cst_now().year, type=int)
+    month = request.args.get('month', cst_now().month, type=int)
 
     # Clamp month
     if month < 1:
@@ -247,7 +247,7 @@ def calendar():
                 week_data.append({
                     'day': day,
                     'bookings': day_bookings.get(day, []),
-                    'is_today': (day == datetime.utcnow().day and month == datetime.utcnow().month and year == datetime.utcnow().year)
+                    'is_today': (day == cst_now().day and month == cst_now().month and year == cst_now().year)
                 })
         weeks.append(week_data)
 
