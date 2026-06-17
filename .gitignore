@@ -8,3 +8,7 @@ static/uploads/covers/*
 .DS_Store
 venv/
 env/
+.claude/
+.superpowers/
+docs/
+*.db
