@@ -85,6 +85,13 @@ def register():
         db.session.commit()
         login_user(user)
         flash(f'注册成功！欢迎加入师说，{user.username}。', 'success')
+
+        if role == 'teacher':
+            flash('请先完善教师资料后再发布课程。', 'info')
+            return redirect(url_for('course.edit_teacher_profile'))
+        elif role == 'parent':
+            flash('请先绑定学生账号以查看学习情况。', 'info')
+            return redirect(url_for('parent.bind_student'))
         return redirect(url_for('course.index'))
 
     return _render_register()

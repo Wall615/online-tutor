@@ -103,6 +103,12 @@ def create():
         flash('只有教师可以发布课程。', 'danger')
         return redirect(url_for('course.index'))
 
+    # Check if teacher has completed their profile
+    profile = current_user.teacher_profile
+    if not profile or not profile.subjects or not profile.bio:
+        flash('请先完善教师资料（擅长科目和个人简介）后再发布课程。', 'warning')
+        return redirect(url_for('course.edit_teacher_profile'))
+
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
         subject = request.form.get('subject', '').strip()
