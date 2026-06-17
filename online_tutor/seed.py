@@ -6,9 +6,39 @@ from datetime import datetime, timedelta
 app = create_app()
 
 with app.app_context():
-    # Clear existing data
-    db.drop_all()
+    # Only create tables if they don't exist
     db.create_all()
+
+    # ---- Auto-migrate: add new columns for existing databases ----
+    from sqlalchemy import inspect, text
+    inspector = inspect(db.engine)
+    existing_cols = {c['name'] for c in inspector.get_columns('courses')}
+    if 'approved' not in existing_cols:
+        with db.engine.connect() as conn:
+            conn.execute(text('ALTER TABLE courses ADD COLUMN approved BOOLEAN DEFAULT 0'))
+            conn.commit()
+        print("迁移：已添加 courses.approved 列")
+
+    existing_msg_cols = {c['name'] for c in inspector.get_columns('messages')}
+    if 'is_read' not in existing_msg_cols:
+        with db.engine.connect() as conn:
+            conn.execute(text('ALTER TABLE messages ADD COLUMN is_read BOOLEAN DEFAULT 0'))
+            conn.commit()
+        print("迁移：已添加 messages.is_read 列")
+
+    existing_course_cols = {c['name'] for c in inspector.get_columns('courses')}
+    if 'cover_image' not in existing_course_cols:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE courses ADD COLUMN cover_image VARCHAR(256) DEFAULT ''"))
+            conn.commit()
+        print("迁移：已添加 courses.cover_image 列")
+
+    # Skip seeding if users already exist
+    if User.query.first():
+        print("数据库已有数据，跳过种子填充。")
+        print("（如需重置，请删除 app.db 后重新运行此脚本）")
+        import sys
+        sys.exit(0)
 
     # ===== Create users =====
     # Admin
