@@ -39,7 +39,7 @@ def register():
         if len(username) < 2 or len(username) > 10:
             flash('用户名长度需在2到10个字符之间。', 'danger')
             return _render_register()
-        if not re.match(r'^[一-鿿\a-zA-Z.]+$', username):
+        if not re.match(r'^[一-鿿a-zA-Z.]+$', username):
             flash('用户名只能包含汉字、英文字母和点号(.)。', 'danger')
             return _render_register()
 
